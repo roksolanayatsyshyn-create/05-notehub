@@ -5,7 +5,7 @@ import css from './App.module.css';
 import { SearchBox } from "../SearchBox/SearchBox";
 import { Pagination } from "../Pagination/Pagination";
 import { useQuery, useQueryClient,keepPreviousData } from "@tanstack/react-query";
-import { fetchNotes, createNote, deleteNote } from "../../services/noteServices.ts";
+import { fetchNotes, createNote, deleteNote } from "../../services/noteService.ts";
 import { Modal } from "../Modal/Modal";
 import { NoteForm } from "../NoteForm/NoteForm";
 import type { NoteFormValues  } from "../../types/note";
