@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { NoteList} from "../NoteList/NoteList";
 import css from './App.module.css';
 import { SearchBox } from "../SearchBox/SearchBox";
-import ReactPaginate from "react-paginate";
+import { Pagination } from "../Pagination/Pagination";
 import { useQuery, useQueryClient,keepPreviousData } from "@tanstack/react-query";
 import { fetchNotes, createNote, deleteNote } from "../../services/noteServices.ts";
 import { Modal } from "../Modal/Modal";
@@ -15,18 +15,19 @@ import Loader  from "../Loader/Loader";
 
 
 
-
+const PER_PAGE = 12;
 function App() {
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
 const [debouncedSearch] = useDebounce(search, 500);
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const NOTES_PER_PAGE=12
+    
+    
    const { data, isLoading, isError } = useQuery({
-    queryKey: ["notes", debouncedSearch, currentPage],
-    queryFn: () => fetchNotes(debouncedSearch, currentPage, NOTES_PER_PAGE),
+    queryKey: ["notes", debouncedSearch, page],
+    queryFn: () => fetchNotes(debouncedSearch, page, PER_PAGE),
     placeholderData: keepPreviousData,
   });
 
@@ -36,7 +37,7 @@ const [debouncedSearch] = useDebounce(search, 500);
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setCurrentPage(1);
+    setPage(1);
   };
 
 
@@ -59,33 +60,37 @@ const [debouncedSearch] = useDebounce(search, 500);
       <div className={css.app}>
 	<header className={css.toolbar}>
 		{
-      <SearchBox value={search} onChange={handleSearchChange}
-       />
+      <SearchBox
+          value={search}
+          onChange={handleSearchChange}
+        />
     }
     
-		{totalPages> 1 && (
-        <ReactPaginate
-          pageCount={totalPages}
-          pageRangeDisplayed={5}
-          marginPagesDisplayed={1}
-          onPageChange={({ selected }) => setCurrentPage(selected + 1)}
-          forcePage={currentPage - 1}
-          containerClassName={css.pagination}
-          activeClassName={css.active}
-          nextLabel="→"
-          previousLabel="←"
-        />
-      )}
+		
+  <Pagination
+    totalPages={totalPages}
+    currentPage={page}
+    onPageChange={setPage}
+  />
+
+
 		{<button className={css.button}
     onClick={() => setIsModalOpen(true)}>Create note +</button>}
+
 
 
 
   </header>
   {isLoading&& <Loader/>}
   {isError && <ErrorMessage/>}
-  {!isLoading && !isError && notes.length>0&&(<NoteList notes={notes} onDelete={handleDeleteNote} />
-)}
+  {!isLoading && !isError && notes.length > 0 && (
+        
+        
+          <NoteList notes={notes} onDelete={handleDeleteNote} />
+
+          
+        
+      )}
 {isModalOpen && (
   <Modal onClose={() => setIsModalOpen(false)}>
     <NoteForm
