@@ -1,29 +1,40 @@
-import css from "./NoteList.module.css";
-import type {Note} from "../../types/note.ts"
+import type { Note } from "../../types/note.ts";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteNote } from "../../services/noteService";
 
-export interface NoteListProps{
-  notes:Note[],
-  onDelete: (id: string) => void;
+import css from "./NoteList.module.css";
+
+export interface NoteListProps {
+  notes: Note[];
 }
 
+export function NoteList({ notes }: NoteListProps) {
+  const queryClient = useQueryClient();
 
-
-export function NoteList({notes, onDelete }:NoteListProps) {
+  const { mutate, isPending } = useMutation({
+    mutationFn: deleteNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+    },
+  });
   return (
     <ul className={css.list}>
-      {notes.map((note)=>(
+      {notes.map((note) => (
         <li key={note.id} className={css.listItem}>
-    <h2 className={css.title}>{note.title}</h2>
-    <p className={css.content}>{note.content}</p>
-    <div className={css.footer}>
-      <span className={css.tag}>{note.tag}</span>
-      <button className={css.button} onClick={() => onDelete(note.id)}>Delete</button>
-    </div>
-  </li>))}
-        
-  
-</ul>
-
-  )
-  
+          <h2 className={css.title}>{note.title}</h2>
+          <p className={css.content}>{note.content}</p>
+          <div className={css.footer}>
+            <span className={css.tag}>{note.tag}</span>
+            <button
+              className={css.button}
+              onClick={() => mutate(note.id)}
+              disabled={isPending}
+            >
+              Delete
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
 }

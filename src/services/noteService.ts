@@ -12,22 +12,23 @@ const axiosInstance = axios.create({
     Authorization: `Bearer ${import.meta.env.VITE_NOTEHUB_TOKEN}`,
   },
 });
-export async function fetchNotes(search: string,page=1,perPage=12):Promise<FetchNotesResponse> {
+export async function fetchNotes(
+  search: string,
+  page = 1,
+  perPage = 12
+): Promise<FetchNotesResponse> {
   const res = await axiosInstance.get<FetchNotesResponse>("/", {
-    params: { search,page,perPage },
+    params: { search, page, perPage },
   });
   return res.data;
 }
 
-export async function createNote(
-  newNote: NoteFormValues
-) {
-  const res = await axiosInstance.post<FetchNotesResponse>("/", newNote); 
+export async function createNote(newNote: NoteFormValues) {
+  const res = await axiosInstance.post<Note>("/", newNote);
   return res.data;
 }
 
 export async function deleteNote(id: string) {
-  const res = await axiosInstance.delete<{ id: string }>(`/${id}`);
+  const res = await axiosInstance.delete<Note>(`/${id}`);
   return res.data;
-  
 }
